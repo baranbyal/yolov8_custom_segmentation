@@ -169,14 +169,43 @@ void GetMask2(const Mat& maskProposals, const Mat& mask_protos, OutputSeg& outpu
 
 }
 
+//void DrawPred(Mat& img, vector<OutputSeg> result, std::vector<std::string> classNames, vector<Scalar> color) {
+//    // Step 1: Create an empty single-channel mask of the same size as img
+//    Mat mask = Mat::zeros(img.size(), CV_8UC1);
+//
+//    for (int i = 0; i < result.size(); i++) {
+//        int left, top;
+//        left = result[i].box.x;
+//        top = result[i].box.y;
+//
+//        // Step 2: Populate the single-channel mask with the bounding box data
+//        if (result[i].boxMask.rows && result[i].boxMask.cols > 0)
+//            mask(result[i].box).setTo(255, result[i].boxMask); // Set the region inside the bounding box to white (255)
+//
+//        string label = classNames[result[i].id] + ":" + to_string(result[i].confidence);
+//        int baseLine;
+//        Size labelSize = getTextSize(label, FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+//        top = max(top, labelSize.height);
+//        putText(img, label, Point(left, top), FONT_HERSHEY_SIMPLEX, 1, color[result[i].id], 2);
+//    }
+//
+//    // Step 3: Display the binary mask (you can also perform further processing on this mask)
+//    imshow("Mask", mask);
+//    waitKey(0);
+//}
+
 void DrawPred(Mat& img, vector<OutputSeg> result, std::vector<std::string> classNames, vector<Scalar> color) {
 	Mat mask = img.clone();
+	// Step 1: Create an empty mask of the same size as img
+    //Mat mask = Mat::zeros(img.size(), CV_8UC3);
 	for (int i = 0; i < result.size(); i++) {
+		if(result[i].confidence < (float) 0.6)
+			continue;
 		int left, top;
 		left = result[i].box.x;
 		top = result[i].box.y;
 		int color_num = i;
-		rectangle(img, result[i].box, color[result[i].id], 2, 8);
+		rectangle(img, result[i].box, color[result[i].id], 1, 8);
 		if(result[i].boxMask.rows&& result[i].boxMask.cols>0)
 			mask(result[i].box).setTo(color[result[i].id], result[i].boxMask);
 		string label = classNames[result[i].id] + ":" + to_string(result[i].confidence);
@@ -189,7 +218,7 @@ void DrawPred(Mat& img, vector<OutputSeg> result, std::vector<std::string> class
 	addWeighted(img, 0.5, mask, 0.5, 0, img); //add mask to src
 	imshow("1", img);
 	//imwrite("out.bmp", img);
-	waitKey();
+	waitKey(0);
 	//destroyAllWindows();
 
 }
